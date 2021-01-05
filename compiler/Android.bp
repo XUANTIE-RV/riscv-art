@@ -170,6 +170,18 @@ art_cc_defaults {
                 "utils/x86_64/managed_register_x86_64.cc",
             ],
         },
+        riscv64: {
+            srcs: [
+                "jni/quick/riscv64/calling_convention_riscv64.cc",
+                "optimizing/code_generator_riscv64.cc",
+                "optimizing/code_generator_vector_riscv64.cc",
+                "optimizing/intrinsics_riscv64.cc",
+                "utils/riscv64/assembler_riscv64.cc",
+                "utils/riscv64/jni_macro_assembler_riscv64.cc",
+                "utils/riscv64/managed_register_riscv64.cc",
+            ],
+        },
+
     },
     generated_sources: ["art_compiler_operator_srcs"],
     shared_libs: [
@@ -254,7 +266,7 @@ art_cc_library {
     target: {
         android: {
             lto: {
-                 thin: true,
+                 thin: false,
             },
         },
     },
@@ -348,6 +360,7 @@ art_cc_test {
     defaults: [
         "art_gtest_defaults",
     ],
+    cflags: ["-Wno-invalid-partial-specialization"],
     srcs: [
         "debug/dwarf/dwarf_test.cc",
         "debug/src_map_elem_test.cc",
@@ -412,6 +425,12 @@ art_cc_test {
                 "utils/mips64/managed_register_mips64_test.cc",
             ],
         },
+        riscv64: {
+            srcs: [
+                "utils/riscv64/managed_register_riscv64_test.cc",
+            ],
+        },
+
         x86: {
             srcs: [
                 "utils/x86/managed_register_x86_test.cc",
@@ -496,6 +515,11 @@ art_cc_test {
         x86_64: {
             srcs: [
                 "utils/x86_64/assembler_x86_64_test.cc",
+            ],
+        },
+        riscv64: {
+            srcs: [
+                "utils/riscv64/assembler_riscv64_test.cc",
             ],
         },
     },

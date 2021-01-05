@@ -45,6 +45,10 @@ namespace x86_64 {
 class X86_64ManagedRegister;
 }  // namespace x86_64
 
+namespace riscv64 {
+class Riscv64ManagedRegister;
+}  // namespace riscv64
+
 class ManagedRegister : public ValueObject {
  public:
   // ManagedRegister is a value class. There exists no method to change the
@@ -60,6 +64,7 @@ class ManagedRegister : public ValueObject {
   constexpr mips64::Mips64ManagedRegister AsMips64() const;
   constexpr x86::X86ManagedRegister AsX86() const;
   constexpr x86_64::X86_64ManagedRegister AsX86_64() const;
+  constexpr riscv64::Riscv64ManagedRegister AsRiscv64() const;
 
   // It is valid to invoke Equals on and with a NoRegister.
   constexpr bool Equals(const ManagedRegister& other) const {

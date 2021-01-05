@@ -165,6 +165,24 @@ static constexpr size_t kFrameSizeSaveEverything = FRAME_SIZE_SAVE_EVERYTHING;
 #undef FRAME_SIZE_SAVE_EVERYTHING
 }  // namespace x86_64
 
+
+namespace riscv64 {
+#include "arch/riscv64/asm_support_riscv64.h"
+static constexpr size_t kFrameSizeSaveAllCalleeSaves = FRAME_SIZE_SAVE_ALL_CALLEE_SAVES;
+#undef FRAME_SIZE_SAVE_ALL_CALLEE_SAVES
+static constexpr size_t kFrameSizeSaveRefsOnly = FRAME_SIZE_SAVE_REFS_ONLY;
+#undef FRAME_SIZE_SAVE_REFS_ONLY
+static constexpr size_t kFrameSizeSaveRefsAndArgs = FRAME_SIZE_SAVE_REFS_AND_ARGS;
+#undef FRAME_SIZE_SAVE_REFS_AND_ARGS
+static constexpr size_t kFrameSizeSaveEverythingForClinit = FRAME_SIZE_SAVE_EVERYTHING_FOR_CLINIT;
+#undef FRAME_SIZE_SAVE_EVERYTHING_FOR_CLINIT
+static constexpr size_t kFrameSizeSaveEverythingForSuspendCheck =
+    FRAME_SIZE_SAVE_EVERYTHING_FOR_SUSPEND_CHECK;
+#undef FRAME_SIZE_SAVE_EVERYTHING_FOR_SUSPEND_CHECK
+static constexpr size_t kFrameSizeSaveEverything = FRAME_SIZE_SAVE_EVERYTHING;
+#undef FRAME_SIZE_SAVE_EVERYTHING
+}  // namespace riscv64
+
 // Check architecture specific constants are sound.
 // We expect the return PC to be stored at the highest address slot in the frame.
 #define TEST_ARCH_TYPE(Arch, arch, type)                                              \
@@ -187,5 +205,5 @@ TEST_ARCH(Mips, mips)
 TEST_ARCH(Mips64, mips64)
 TEST_ARCH(X86, x86)
 TEST_ARCH(X86_64, x86_64)
-
+TEST_ARCH(Riscv64, riscv64)
 }  // namespace art

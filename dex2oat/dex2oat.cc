@@ -289,7 +289,7 @@ NO_RETURN static void Usage(const char* fmt, ...) {
   UsageError("      Example: --android-root=out/host/linux-x86");
   UsageError("      Default: $ANDROID_ROOT");
   UsageError("");
-  UsageError("  --instruction-set=(arm|arm64|mips|mips64|x86|x86_64): compile for a particular");
+  UsageError("  --instruction-set=(arm|arm64|mips|mips64|x86|x86_64|riscv64): compile for a particular");
   UsageError("      instruction set.");
   UsageError("      Example: --instruction-set=x86");
   UsageError("      Default: arm");
@@ -957,7 +957,7 @@ class Dex2Oat final {
       int64_t timeout = parser_options->watch_dog_timeout_in_ms > 0
                             ? parser_options->watch_dog_timeout_in_ms
                             : WatchDog::kDefaultWatchdogTimeoutInMS;
-      watchdog_.reset(new WatchDog(timeout));
+      watchdog_.reset(new WatchDog(timeout*5));
     }
 
     // Fill some values into the key-value store for the oat header.

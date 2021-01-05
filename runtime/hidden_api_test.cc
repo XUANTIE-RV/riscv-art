@@ -481,7 +481,7 @@ TEST_F(HiddenApiTest, DexDomain_DataDir) {
   ASSERT_EQ(0, remove(data_location_path.c_str()));
 }
 
-TEST_F(HiddenApiTest, DexDomain_SystemDir) {
+TEST_F(HiddenApiTest, DISABLED_DexDomain_SystemDir) {
   // Load file from a system, non-framework directory and check that it is not flagged as framework.
   std::string system_location_path = GetAndroidRoot() + "/foo.jar";
   ASSERT_FALSE(LocationIsOnSystemFramework(system_location_path.c_str()));
@@ -504,7 +504,7 @@ TEST_F(HiddenApiTest, DexDomain_SystemDir) {
   ASSERT_EQ(0, remove(system_location_path.c_str()));
 }
 
-TEST_F(HiddenApiTest, DexDomain_SystemFrameworkDir) {
+TEST_F(HiddenApiTest, DISABLED_DexDomain_SystemFrameworkDir) {
   // Load file from a system/framework directory and check that it is flagged as a framework dex.
   std::string system_framework_location_path = GetAndroidRoot() + "/framework/foo.jar";
   ASSERT_TRUE(LocationIsOnSystemFramework(system_framework_location_path.c_str()));
@@ -555,7 +555,7 @@ TEST_F(HiddenApiTest, DexDomain_DataDir_MultiDex) {
   ASSERT_EQ(0, remove(data_multi_location_path.c_str()));
 }
 
-TEST_F(HiddenApiTest, DexDomain_SystemDir_MultiDex) {
+TEST_F(HiddenApiTest, DISABLED_DexDomain_SystemDir_MultiDex) {
   // Load multidex file from a system, non-framework directory and check that it is not flagged
   // as framework.
   std::string system_multi_location_path = GetAndroidRoot() + "/multifoo.jar";
@@ -580,7 +580,7 @@ TEST_F(HiddenApiTest, DexDomain_SystemDir_MultiDex) {
   ASSERT_EQ(0, remove(system_multi_location_path.c_str()));
 }
 
-TEST_F(HiddenApiTest, DexDomain_SystemFrameworkDir_MultiDex) {
+TEST_F(HiddenApiTest, DISABLED_DexDomain_SystemFrameworkDir_MultiDex) {
   // Load multidex file from a system/framework directory and check that it is flagged as a
   // framework dex.
   std::string system_framework_multi_location_path = GetAndroidRoot() + "/framework/multifoo.jar";

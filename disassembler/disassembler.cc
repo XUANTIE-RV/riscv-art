@@ -37,6 +37,10 @@
 # include "disassembler_x86.h"
 #endif
 
+#ifdef ART_ENABLE_CODEGEN_riscv64
+# include "disassembler_riscv64.h"
+#endif
+
 using android::base::StringPrintf;
 
 namespace art {
@@ -72,6 +76,10 @@ Disassembler* Disassembler::Create(InstructionSet instruction_set, DisassemblerO
 #ifdef ART_ENABLE_CODEGEN_x86_64
     case InstructionSet::kX86_64:
       return new x86::DisassemblerX86(options, /* supports_rex= */ true);
+#endif
+#ifdef ART_ENABLE_CODEGEN_riscv64
+    case InstructionSet::kRiscv64:
+      return new riscv64::DisassemblerRiscv64(options);
 #endif
     default:
       UNIMPLEMENTED(FATAL) << static_cast<uint32_t>(instruction_set);

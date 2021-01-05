@@ -237,6 +237,10 @@ bool CompilerFilter::ParseCompilerFilter(const char* option, Filter* filter) {
   } else {
     return false;
   }
+
+  // FIXE: T-HEAD, zhengxing: Force use quicken to disable AOT temporally.
+  if ((*filter != kAssumeVerified) && (*filter != kExtract) && (*filter != kVerify) && (*filter != kQuicken))
+    *filter = kQuicken;
   return true;
 }
 

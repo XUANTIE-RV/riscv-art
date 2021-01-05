@@ -32,6 +32,7 @@
 #include "arch/mips64/callee_save_frame_mips64.h"
 #include "arch/x86/callee_save_frame_x86.h"
 #include "arch/x86_64/callee_save_frame_x86_64.h"
+#include "arch/riscv64/callee_save_frame_riscv64.h"
 
 namespace art {
 class ArtMethod;
@@ -86,6 +87,8 @@ template <>
 struct CSFSelector<InstructionSet::kX86> { using type = x86::X86CalleeSaveFrame; };
 template <>
 struct CSFSelector<InstructionSet::kX86_64> { using type = x86_64::X86_64CalleeSaveFrame; };
+template <>
+struct CSFSelector<InstructionSet::kRiscv64> { using type = riscv64::Riscv64CalleeSaveFrame; };
 
 }  // namespace detail
 

@@ -27,6 +27,8 @@
 #include "interpreter/shadow_frame-inl.h"
 #include "mirror/string-alloc-inl.h"
 
+#include <fstream>
+
 namespace art {
 namespace interpreter {
 /*
@@ -146,6 +148,21 @@ extern "C" ssize_t MterpDoPackedSwitch(const uint16_t* switchData, int32_t testV
 bool CanUseMterp()
     REQUIRES_SHARED(Locks::mutator_lock_) {
   const Runtime* const runtime = Runtime::Current();
+  #if defined(__riscv)
+  // FIXME: T-HEAD, hacking for running mterp without jit support.
+  return
+      runtime->IsStarted() &&
+      !Dbg::IsDebuggerActive() &&
+      !runtime->GetInstrumentation()->IsActive() &&
+      // mterp only knows how to deal with the normal exits. It cannot handle any of the
+      // non-standard force-returns.
+      !runtime->AreNonStandardExitsEnabled() &&
+      // An async exception has been thrown. We need to go to the switch interpreter. MTerp doesn't
+      // know how to deal with these so we could end up never dealing with it if we are in an
+      // infinite loop.
+      !runtime->AreAsyncExceptionsThrown() &&
+      (runtime->GetJit() == nullptr || !runtime->GetJit()->JitAtFirstUse());
+  #else
   return
       runtime->IsStarted() &&
       !runtime->IsAotCompiler() &&
@@ -159,6 +176,7 @@ bool CanUseMterp()
       // infinite loop.
       !runtime->AreAsyncExceptionsThrown() &&
       (runtime->GetJit() == nullptr || !runtime->GetJit()->JitAtFirstUse());
+  #endif
 }
 
 

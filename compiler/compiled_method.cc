@@ -66,6 +66,7 @@ size_t CompiledCode::CodeDelta(InstructionSet instruction_set) {
     case InstructionSet::kMips64:
     case InstructionSet::kX86:
     case InstructionSet::kX86_64:
+    case InstructionSet::kRiscv64:
       return 0;
     case InstructionSet::kThumb2: {
       // +1 to set the low-order bit so a BLX will switch to Thumb mode
@@ -85,6 +86,7 @@ const void* CompiledCode::CodePointer(const void* code_pointer, InstructionSet i
     case InstructionSet::kMips64:
     case InstructionSet::kX86:
     case InstructionSet::kX86_64:
+    case InstructionSet::kRiscv64:
       return code_pointer;
     case InstructionSet::kThumb2: {
       uintptr_t address = reinterpret_cast<uintptr_t>(code_pointer);

@@ -300,6 +300,46 @@ class QuickArgumentVisitor {
       UNREACHABLE();
     }
   }
+#elif defined(__riscv) && (__riscv_xlen == 64)
+  // The callee save frame is pointed to by SP.
+  // | argN       |  |
+  // | ...        |  |
+  // | arg4       |  |
+  // | arg3 spill |  |  Caller's frame
+  // | arg2 spill |  |
+  // | arg1 spill |  |
+  // | Method*    | ---
+  // | RA         |
+  // | ...        |    callee saves
+  // | A7         |    arg7
+  // | A6         |    arg6
+  // | A5         |    arg5
+  // | A4         |    arg4
+  // | A3         |    arg3
+  // | A2         |    arg2
+  // | A1         |    arg1
+  // | F17        |    f_arg7
+  // | F16        |    f_arg6
+  // | F15        |    f_arg5
+  // | F14        |    f_arg4
+  // | F13        |    f_arg3
+  // | F12        |    f_arg2
+  // | F11        |    f_arg1
+  // | F10        |    f_arg0
+  // |            |    padding
+  // | A0/Method* |  <- sp
+  static constexpr bool kSplitPairAcrossRegisterAndStack = false;
+  static constexpr bool kAlignPairRegister = false;
+  static constexpr bool kQuickSoftFloatAbi = false;
+  static constexpr bool kQuickDoubleRegAlignedFloatBackFilled = false;
+  static constexpr bool kQuickSkipOddFpRegisters = false;
+  static constexpr size_t kNumQuickGprArgs = 7;  // 7 arguments passed in GPRs.
+  static constexpr size_t kNumQuickFprArgs = 8;  // 7 arguments passed in FPRs.
+  static constexpr bool kGprFprLockstep = false;
+
+  static size_t GprIndexToGprOffset(uint32_t gpr_index) {
+    return gpr_index * GetBytesPerGprSpillLocation(kRuntimeISA);
+  }
 #else
 #error "Unsupported architecture"
 #endif
@@ -394,6 +434,25 @@ class QuickArgumentVisitor {
   }
 
   uint8_t* GetParamAddress() const {
+    // FIXME: T-HEAD, Riscv64 get the param value from stack directly.
+    #if defined(__riscv) && (__riscv_xlen == 64)
+    Primitive::Type type = GetParamPrimitiveType();
+    if (UNLIKELY((type == Primitive::kPrimDouble) || (type == Primitive::kPrimFloat))) {
+      if (fpr_index_ + 1 < kNumQuickFprArgs + 1) {
+        return fpr_args_ + (fpr_index_ * GetBytesPerFprSpillLocation(kRuntimeISA));
+      }
+
+      // [Workaround]:
+      // FIXME: T-HEAD, The optimizing compiler and runtime code can guarantee the >8 float/double values
+      //            stored on its stack slot. it's safe to get them on stack.
+      return stack_args_ + (stack_index_ * kBytesStackArgLocation);
+    }
+
+    if (gpr_index_ < kNumQuickGprArgs) {
+      return gpr_args_ + GprIndexToGprOffset(gpr_index_);
+    }
+    return stack_args_ + (stack_index_ * kBytesStackArgLocation);
+    #else
     if (!kQuickSoftFloatAbi) {
       Primitive::Type type = GetParamPrimitiveType();
       if (UNLIKELY((type == Primitive::kPrimDouble) || (type == Primitive::kPrimFloat))) {
@@ -411,6 +470,7 @@ class QuickArgumentVisitor {
       return gpr_args_ + GprIndexToGprOffset(gpr_index_);
     }
     return stack_args_ + (stack_index_ * kBytesStackArgLocation);
+    #endif
   }
 
   bool IsSplitLongOrDouble() const {
@@ -508,7 +568,14 @@ class QuickArgumentVisitor {
               } else if (kQuickSkipOddFpRegisters) {
                 IncFprIndex();
               }
+            #if defined(__riscv)
+            // FIXME: T-HEAD, Riscv64 will try GPR when out of FPR. Need update Gpr index here.
+            } else if (gpr_index_ < kNumQuickGprArgs) {
+              IncGprIndex();
             }
+            #else
+            }
+            #endif
           }
           break;
         case Primitive::kPrimDouble:
@@ -573,7 +640,14 @@ class QuickArgumentVisitor {
                   IncFprIndex();
                 }
               }
+            #if defined(__riscv)
+            // FIXME: T-HEAD, Riscv64 will try GPR when out of FPR. Need update Gpr index here.
+            } else if (gpr_index_ < kNumQuickGprArgs) {
+              IncGprIndex();
             }
+            #else
+            }
+            #endif
           }
           break;
         default:
@@ -1562,6 +1636,7 @@ template<class T> class BuildNativeCallFrameStateMachine {
   static constexpr size_t kRegistersNeededForDouble = 2;
   static constexpr bool kMultiRegistersAligned = true;
   static constexpr bool kMultiFPRegistersWidened = false;
+  static constexpr bool kFPRegisterIsNANBoxing = false;
   static constexpr bool kMultiGPRegistersWidened = false;
   static constexpr bool kAlignLongOnStack = true;
   static constexpr bool kAlignDoubleOnStack = true;
@@ -1574,6 +1649,7 @@ template<class T> class BuildNativeCallFrameStateMachine {
   static constexpr size_t kRegistersNeededForDouble = 1;
   static constexpr bool kMultiRegistersAligned = false;
   static constexpr bool kMultiFPRegistersWidened = false;
+  static constexpr bool kFPRegisterIsNANBoxing = false;
   static constexpr bool kMultiGPRegistersWidened = false;
   static constexpr bool kAlignLongOnStack = false;
   static constexpr bool kAlignDoubleOnStack = false;
@@ -1586,6 +1662,7 @@ template<class T> class BuildNativeCallFrameStateMachine {
   static constexpr size_t kRegistersNeededForDouble = 2;
   static constexpr bool kMultiRegistersAligned = true;
   static constexpr bool kMultiFPRegistersWidened = true;
+  static constexpr bool kFPRegisterIsNANBoxing = false;
   static constexpr bool kMultiGPRegistersWidened = false;
   static constexpr bool kAlignLongOnStack = true;
   static constexpr bool kAlignDoubleOnStack = true;
@@ -1599,6 +1676,7 @@ template<class T> class BuildNativeCallFrameStateMachine {
   static constexpr size_t kRegistersNeededForDouble = 1;
   static constexpr bool kMultiRegistersAligned = false;
   static constexpr bool kMultiFPRegistersWidened = false;
+  static constexpr bool kFPRegisterIsNANBoxing = false;
   static constexpr bool kMultiGPRegistersWidened = true;
   static constexpr bool kAlignLongOnStack = false;
   static constexpr bool kAlignDoubleOnStack = false;
@@ -1612,6 +1690,7 @@ template<class T> class BuildNativeCallFrameStateMachine {
   static constexpr size_t kRegistersNeededForDouble = 2;
   static constexpr bool kMultiRegistersAligned = false;  // x86 not using regs, anyways
   static constexpr bool kMultiFPRegistersWidened = false;
+  static constexpr bool kFPRegisterIsNANBoxing = false;
   static constexpr bool kMultiGPRegistersWidened = false;
   static constexpr bool kAlignLongOnStack = false;
   static constexpr bool kAlignDoubleOnStack = false;
@@ -1624,6 +1703,20 @@ template<class T> class BuildNativeCallFrameStateMachine {
   static constexpr size_t kRegistersNeededForDouble = 1;
   static constexpr bool kMultiRegistersAligned = false;
   static constexpr bool kMultiFPRegistersWidened = false;
+  static constexpr bool kFPRegisterIsNANBoxing = false;
+  static constexpr bool kMultiGPRegistersWidened = false;
+  static constexpr bool kAlignLongOnStack = false;
+  static constexpr bool kAlignDoubleOnStack = false;
+#elif defined(__riscv) && (__riscv_xlen == 64)
+  static constexpr bool kNativeSoftFloatAbi = false;
+  static constexpr size_t kNumNativeGprArgs = 8;
+  static constexpr size_t kNumNativeFprArgs = 8;
+
+  static constexpr size_t kRegistersNeededForLong = 1;
+  static constexpr size_t kRegistersNeededForDouble = 1;
+  static constexpr bool kMultiRegistersAligned = false;
+  static constexpr bool kMultiFPRegistersWidened = false;
+  static constexpr bool kFPRegisterIsNANBoxing = 1;
   static constexpr bool kMultiGPRegistersWidened = false;
   static constexpr bool kAlignLongOnStack = false;
   static constexpr bool kAlignDoubleOnStack = false;
@@ -1760,6 +1853,9 @@ template<class T> class BuildNativeCallFrameStateMachine {
         if (kRegistersNeededForDouble == 1) {
           if (kMultiFPRegistersWidened) {
             PushFpr8(bit_cast<uint64_t, double>(val));
+          } else if (kFPRegisterIsNANBoxing) {
+            PushFpr8(static_cast<uint64_t>((bit_cast<uint32_t, float>(val))
+                                           | (0xffffffffUL << 32)));
           } else {
             // No widening, just use the bits.
             PushFpr8(static_cast<uint64_t>(bit_cast<uint32_t, float>(val)));
@@ -1768,6 +1864,10 @@ template<class T> class BuildNativeCallFrameStateMachine {
           PushFpr4(val);
         }
       } else {
+        // FIXME: T-HEAD, Riscv64 will try GPR, AdvanceInt may not suitable.
+        #if defined(__riscv) && (__riscv_xlen == 64)
+          AdvanceInt(bit_cast<uint32_t, float>(val));
+        #else
         stack_entries_++;
         if (kRegistersNeededForDouble == 1 && kMultiFPRegistersWidened) {
           // Need to widen before storing: Note the "double" in the template instantiation.
@@ -1777,6 +1877,7 @@ template<class T> class BuildNativeCallFrameStateMachine {
         } else {
           PushStack(static_cast<uintptr_t>(bit_cast<uint32_t, float>(val)));
         }
+        #endif
         fpr_index_ = 0;
       }
     }
@@ -1810,6 +1911,10 @@ template<class T> class BuildNativeCallFrameStateMachine {
         PushFpr8(val);
         fpr_index_ -= kRegistersNeededForDouble;
       } else {
+        // FIXME: T-HEAD, Riscv64 will try GPR
+        #if defined(__riscv) && (__riscv_xlen == 64)
+          AdvanceLong(val);
+        #else
         if (DoubleStackNeedsPadding()) {
           PushStack(0);
           stack_entries_++;
@@ -1822,6 +1927,7 @@ template<class T> class BuildNativeCallFrameStateMachine {
           PushStack(static_cast<uintptr_t>((val >> 32) & 0xFFFFFFFF));
           stack_entries_ += 2;
         }
+        #endif
         fpr_index_ = 0;
       }
     }

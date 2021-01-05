@@ -164,7 +164,8 @@ libcore_debug_native_shared_libs = [
 libcore_native_device_only_shared_libs = [
     // TODO(b/122876336): Remove libpac.so once it's migrated to Webview.
     // libpac is used by frameworks, not by ART host.
-    "libpac",
+    // FIXME: T-HEAD, disable for riscv64, enable in the future.
+    // "libpac",
 ]
 
 // Temporary library includes for b/123591866 as all libraries are moved into the main art-apex.
@@ -313,6 +314,11 @@ art_apex_test {
             }
         },
     },
+    arch : {
+        riscv64: {
+            enabled: false,
+        }
+    }
 }
 
 python_binary_host {

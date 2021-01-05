@@ -392,6 +392,12 @@ const void* ArtMethod::RegisterNative(const void* native_method) {
                                                                   native_method,
                                                                   /*out*/&new_native_method);
   SetEntryPointFromJni(new_native_method);
+  // FIXME: T-HEAD, hacked here for Native Method: TBD
+  if (IsNative() && (GetEntryPointFromQuickCompiledCode() == nullptr)) {
+      // quick compile it
+      SetEntryPointFromQuickCompiledCode(GetQuickGenericJniStub());
+  }
+
   return new_native_method;
 }
 

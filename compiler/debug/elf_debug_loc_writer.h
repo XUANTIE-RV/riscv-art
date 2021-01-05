@@ -46,6 +46,8 @@ static Reg GetDwarfCoreReg(InstructionSet isa, int machine_reg) {
       return Reg::MipsCore(machine_reg);
     case InstructionSet::kMips64:
       return Reg::Mips64Core(machine_reg);
+    case InstructionSet::kRiscv64:
+      return Reg::Riscv64Core(machine_reg);
     case InstructionSet::kNone:
       LOG(FATAL) << "No instruction set";
   }
@@ -67,6 +69,8 @@ static Reg GetDwarfFpReg(InstructionSet isa, int machine_reg) {
       return Reg::MipsFp(machine_reg);
     case InstructionSet::kMips64:
       return Reg::Mips64Fp(machine_reg);
+    case InstructionSet::kRiscv64:
+      return Reg::Riscv64Fp(machine_reg);
     case InstructionSet::kNone:
       LOG(FATAL) << "No instruction set";
   }

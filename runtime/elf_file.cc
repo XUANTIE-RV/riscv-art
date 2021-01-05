@@ -1095,6 +1095,8 @@ static InstructionSet GetInstructionSetFromELF(uint16_t e_machine, uint32_t e_fl
       }
       break;
     }
+    case EM_RISCV:
+      return InstructionSet::kRiscv64;
   }
   return InstructionSet::kNone;
 }

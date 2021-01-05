@@ -209,7 +209,10 @@ void CommonCompilerTest::CompileMethod(ArtMethod* method) {
     TimingLogger::ScopedTiming t2("MakeExecutable", &timings);
     MakeExecutable(method, compiled_method);
   }
-  CompiledMethod::ReleaseSwapAllocatedCompiledMethod(&storage, compiled_method);
+  // FIXME: T-HEAD, workaround, compiled_method would not be null
+  if (compiled_method != nullptr) {
+    CompiledMethod::ReleaseSwapAllocatedCompiledMethod(&storage, compiled_method);
+  }
 }
 
 void CommonCompilerTest::CompileDirectMethod(Handle<mirror::ClassLoader> class_loader,

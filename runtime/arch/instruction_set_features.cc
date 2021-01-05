@@ -32,6 +32,7 @@
 #include "mips64/instruction_set_features_mips64.h"
 #include "x86/instruction_set_features_x86.h"
 #include "x86_64/instruction_set_features_x86_64.h"
+#include "riscv64/instruction_set_features_riscv64.h"
 
 namespace art {
 
@@ -51,6 +52,8 @@ std::unique_ptr<const InstructionSetFeatures> InstructionSetFeatures::FromVarian
       return X86InstructionSetFeatures::FromVariant(variant, error_msg);
     case InstructionSet::kX86_64:
       return X86_64InstructionSetFeatures::FromVariant(variant, error_msg);
+    case InstructionSet::kRiscv64:
+      return Riscv64InstructionSetFeatures::FromVariant(variant, error_msg);
 
     case InstructionSet::kNone:
       break;
@@ -82,6 +85,9 @@ std::unique_ptr<const InstructionSetFeatures> InstructionSetFeatures::FromBitmap
     case InstructionSet::kX86_64:
       result = X86_64InstructionSetFeatures::FromBitmap(bitmap);
       break;
+    case InstructionSet::kRiscv64:
+      result = Riscv64InstructionSetFeatures::FromBitmap(bitmap);
+      break;
 
     case InstructionSet::kNone:
     default:
@@ -107,6 +113,8 @@ std::unique_ptr<const InstructionSetFeatures> InstructionSetFeatures::FromCppDef
       return X86InstructionSetFeatures::FromCppDefines();
     case InstructionSet::kX86_64:
       return X86_64InstructionSetFeatures::FromCppDefines();
+    case InstructionSet::kRiscv64:
+      return Riscv64InstructionSetFeatures::FromCppDefines();
 
     case InstructionSet::kNone:
       break;
@@ -141,6 +149,8 @@ std::unique_ptr<const InstructionSetFeatures> InstructionSetFeatures::FromCpuInf
       return X86InstructionSetFeatures::FromCpuInfo();
     case InstructionSet::kX86_64:
       return X86_64InstructionSetFeatures::FromCpuInfo();
+    case InstructionSet::kRiscv64:
+      return Riscv64InstructionSetFeatures::FromCpuInfo();
 
     case InstructionSet::kNone:
       break;
@@ -164,6 +174,8 @@ std::unique_ptr<const InstructionSetFeatures> InstructionSetFeatures::FromHwcap(
       return X86InstructionSetFeatures::FromHwcap();
     case InstructionSet::kX86_64:
       return X86_64InstructionSetFeatures::FromHwcap();
+    case InstructionSet::kRiscv64:
+      return Riscv64InstructionSetFeatures::FromHwcap();
 
     case InstructionSet::kNone:
       break;
@@ -187,6 +199,8 @@ std::unique_ptr<const InstructionSetFeatures> InstructionSetFeatures::FromAssemb
       return X86InstructionSetFeatures::FromAssembly();
     case InstructionSet::kX86_64:
       return X86_64InstructionSetFeatures::FromAssembly();
+    case InstructionSet::kRiscv64:
+      return Riscv64InstructionSetFeatures::FromAssembly();
 
     case InstructionSet::kNone:
       break;
@@ -278,6 +292,11 @@ const X86InstructionSetFeatures* InstructionSetFeatures::AsX86InstructionSetFeat
 const X86_64InstructionSetFeatures* InstructionSetFeatures::AsX86_64InstructionSetFeatures() const {
   DCHECK_EQ(InstructionSet::kX86_64, GetInstructionSet());
   return down_cast<const X86_64InstructionSetFeatures*>(this);
+}
+
+const Riscv64InstructionSetFeatures* InstructionSetFeatures::AsRiscv64InstructionSetFeatures() const {
+  DCHECK_EQ(InstructionSet::kRiscv64, GetInstructionSet());
+  return down_cast<const Riscv64InstructionSetFeatures*>(this);
 }
 
 bool InstructionSetFeatures::FindVariantInArray(const char* const variants[], size_t num_variants,

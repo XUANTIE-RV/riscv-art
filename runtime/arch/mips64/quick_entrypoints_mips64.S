@@ -449,9 +449,7 @@
     s.d    $f1, 24($sp)
     s.d    $f0, 16($sp)
 
-    # load appropriate callee-save-method
-    ld      $t1, %got(_ZN3art7Runtime9instance_E)($gp)
-    ld      $t1, 0($t1)
+    # load appropriate callee-save-method208
     ld      $t1, \runtime_method_offset($t1)
     sd      $t1, 0($sp)                                # Place ArtMethod* at bottom of stack.
     # Place sp in Thread::Current()->top_quick_frame.

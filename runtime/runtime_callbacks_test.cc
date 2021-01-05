@@ -150,6 +150,8 @@ TEST_F(ThreadLifecycleCallbackRuntimeCallbacksTest, ThreadLifecycleCallbackJava)
   // Make sure the workers are done starting so we don't get callbacks for them.
   runtime_->WaitForThreadPoolWorkersToStart();
 
+  // FIXME: T-HEAD, [workaround] wait runtime ready
+  sleep(5);
   cb_.state = CallbackState::kBase;  // Ignore main thread attach.
 
   {

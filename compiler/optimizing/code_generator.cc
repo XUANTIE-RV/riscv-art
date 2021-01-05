@@ -40,6 +40,10 @@
 #include "code_generator_mips64.h"
 #endif
 
+#ifdef ART_ENABLE_CODEGEN_riscv64
+#include "code_generator_riscv64.h"
+#endif
+
 #include "base/bit_utils.h"
 #include "base/bit_utils_iterator.h"
 #include "base/casts.h"
@@ -919,6 +923,12 @@ std::unique_ptr<CodeGenerator> CodeGenerator::Create(HGraph* graph,
     case InstructionSet::kX86_64: {
       return std::unique_ptr<CodeGenerator>(
           new (allocator) x86_64::CodeGeneratorX86_64(graph, compiler_options, stats));
+    }
+#endif
+#ifdef ART_ENABLE_CODEGEN_riscv64
+    case InstructionSet::kRiscv64: {
+      return std::unique_ptr<CodeGenerator>(
+          new (allocator) riscv64::CodeGeneratorRISCV64(graph, compiler_options, stats));
     }
 #endif
     default:

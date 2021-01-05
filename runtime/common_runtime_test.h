@@ -219,6 +219,12 @@ class CheckJniAbortCatcher {
     return; \
   }
 
+#define TEST_DISABLED_FOR_RISCV64() \
+  if (kRuntimeISA == InstructionSet::kRiscv64) { \
+    printf("WARNING: TEST DISABLED FOR RISCV64\n"); \
+    return; \
+  }
+
 #define TEST_DISABLED_FOR_X86() \
   if (kRuntimeISA == InstructionSet::kX86) { \
     printf("WARNING: TEST DISABLED FOR X86\n"); \

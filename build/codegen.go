@@ -66,6 +66,8 @@ func codegen(ctx android.LoadHookContext, c *codegenProperties, library bool) {
 			arch = &c.Codegen.Mips
 		case "mips64":
 			arch = &c.Codegen.Mips64
+		case "riscv64":
+			arch = &c.Codegen.Riscv64
 		case "x86":
 			arch = &c.Codegen.X86
 		case "x86_64":
@@ -128,7 +130,7 @@ type codegenArchProperties struct {
 
 type codegenProperties struct {
 	Codegen struct {
-		Arm, Arm64, Mips, Mips64, X86, X86_64 codegenArchProperties
+		Arm, Arm64, Mips, Mips64, Riscv64, X86, X86_64 codegenArchProperties
 	}
 }
 

@@ -452,6 +452,7 @@ static bool IsInstructionSetSupported(InstructionSet instruction_set) {
       || instruction_set == InstructionSet::kThumb2
       || instruction_set == InstructionSet::kMips
       || instruction_set == InstructionSet::kMips64
+      || instruction_set == InstructionSet::kRiscv64
       || instruction_set == InstructionSet::kX86
       || instruction_set == InstructionSet::kX86_64;
 }
@@ -565,6 +566,20 @@ bool OptimizingCompiler::RunArchOptimizations(HGraph* graph,
                               pass_observer,
                               handles,
                               mips64_optimizations);
+    }
+#endif
+#ifdef ART_ENABLE_CODEGEN_riscv64
+    case InstructionSet::kRiscv64: {
+      OptimizationDef riscv64_optimizations[] = {
+        OptDef(OptimizationPass::kSideEffectsAnalysis),
+        OptDef(OptimizationPass::kGlobalValueNumbering, "GVN$after_arch")
+      };
+      return RunOptimizations(graph,
+                              codegen,
+                              dex_compilation_unit,
+                              pass_observer,
+                              handles,
+                              riscv64_optimizations);
     }
 #endif
 #ifdef ART_ENABLE_CODEGEN_x86
@@ -1180,6 +1195,8 @@ CompiledMethod* OptimizingCompiler::JniCompile(uint32_t access_flags,
   ArenaStack arena_stack(runtime->GetArenaPool());
 
   const CompilerOptions& compiler_options = GetCompilerOptions();
+  // FIXME: T-HEAD: Implments Intrinsics compile in future.
+#if 0
   if (compiler_options.IsBootImage()) {
     ScopedObjectAccess soa(Thread::Current());
     ArtMethod* method = runtime->GetClassLinker()->LookupResolvedMethod(
@@ -1219,6 +1236,7 @@ CompiledMethod* OptimizingCompiler::JniCompile(uint32_t access_flags,
       }
     }
   }
+#endif
 
   JniCompiledMethod jni_compiled_method = ArtQuickJniCompileMethod(
       compiler_options, access_flags, method_idx, dex_file);

@@ -33,7 +33,7 @@ namespace art {
 
 // If you want to take a look at the differences between the ART assembler and GCC, set this flag
 // to true. The disassembled files will then remain in the tmp directory.
-static constexpr bool kKeepDisassembledFiles = false;
+static constexpr bool kKeepDisassembledFiles = true;
 
 // Use a glocal static variable to keep the same name for all test data. Else we'll just spam the
 // temp directory.

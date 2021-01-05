@@ -824,6 +824,11 @@ class ElfBuilder final {
         elf_header.e_flags = 0;
         break;
       }
+      case InstructionSet::kRiscv64: {
+        elf_header.e_machine = EM_RISCV;
+        elf_header.e_flags = 0;
+        break;
+      }
       case InstructionSet::kNone: {
         LOG(FATAL) << "No instruction set";
         break;

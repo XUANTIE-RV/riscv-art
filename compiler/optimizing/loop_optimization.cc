@@ -31,7 +31,12 @@
 namespace art {
 
 // Enables vectorization (SIMDization) in the loop optimizer.
+#ifndef ART_ENABLE_CODEGEN_riscv64
 static constexpr bool kEnableVectorization = true;
+#else
+// FIXME: T-HEAD, Current Riscv64 doesn't support SIMD.
+static constexpr bool kEnableVectorization = false;
+#endif
 
 //
 // Static helpers.

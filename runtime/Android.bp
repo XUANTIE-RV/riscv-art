@@ -227,6 +227,8 @@ libart_cc_defaults {
         "arch/x86/instruction_set_features_x86.cc",
         "arch/x86/registers_x86.cc",
         "arch/x86_64/registers_x86_64.cc",
+        "arch/riscv64/instruction_set_features_riscv64.cc",
+        "arch/riscv64/registers_riscv64.cc",
         "entrypoints/entrypoint_utils.cc",
         "entrypoints/jni/jni_entrypoints.cc",
         "entrypoints/math_entrypoints.cc",
@@ -329,6 +331,25 @@ libart_cc_defaults {
                 "arch/mips64/thread_mips64.cc",
                 "monitor_pool.cc",
                 "arch/mips64/fault_handler_mips64.cc",
+            ],
+        },
+        riscv64: {
+            srcs: [
+                "interpreter/mterp/mterp.cc",
+                ":libart_mterp.riscv64",
+                "arch/riscv64/context_riscv64.cc",
+                "arch/riscv64/entrypoints_init_riscv64.cc",
+                "arch/riscv64/jni_entrypoints_riscv64.S",
+                //"arch/riscv64/memcmp16_riscv64.S",
+                "arch/riscv64/quick_entrypoints_riscv64.S",
+                "arch/riscv64/thread_riscv64.cc",
+                "monitor_pool.cc",
+                "arch/riscv64/fault_handler_riscv64.cc",
+            ],
+            asflags: [
+                "-fno-integrated-as",
+              "-Xassembler",
+              "-mno-relax",
             ],
         },
     },
@@ -526,7 +547,7 @@ art_cc_library {
     target: {
         android: {
             lto: {
-                 thin: true,
+                 thin: false,
             },
         },
     },
@@ -728,6 +749,14 @@ genrule {
   name: "libart_mterp.x86_64",
   out: ["mterp_x86_64.S"],
   srcs: ["interpreter/mterp/x86_64/*.S"],
+  tool_files: ["interpreter/mterp/gen_mterp.py", "interpreter/mterp/common/gen_setup.py"],
+  cmd: "$(location interpreter/mterp/gen_mterp.py) $(out) $(in)",
+}
+
+genrule {
+  name: "libart_mterp.riscv64",
+  out: ["mterp_riscv64.S"],
+  srcs: ["interpreter/mterp/riscv64/*.S"],
   tool_files: ["interpreter/mterp/gen_mterp.py", "interpreter/mterp/common/gen_setup.py"],
   cmd: "$(location interpreter/mterp/gen_mterp.py) $(out) $(in)",
 }

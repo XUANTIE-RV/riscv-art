@@ -98,6 +98,10 @@ std::string CommonRuntimeTestImpl::GetAndroidTargetToolsDir(InstructionSet isa) 
       return GetAndroidToolsDir("prebuilts/gcc/linux-x86/mips",
                                 "mips64el-linux-android",
                                 "mips64el-linux-android");
+    case InstructionSet::kRiscv64:
+      return GetAndroidToolsDir("prebuilts/gcc/linux-x86/riscv64",
+                                "riscv64-linux-android",
+                                "riscv64-linux-android");
     case InstructionSet::kNone:
       break;
   }

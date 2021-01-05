@@ -76,7 +76,7 @@ art_cc_library {
     target: {
         android: {
             lto: {
-                 thin: true,
+                 thin: false,
             },
         },
         windows: {

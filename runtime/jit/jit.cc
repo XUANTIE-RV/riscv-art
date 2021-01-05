@@ -48,6 +48,8 @@
 #include "thread-inl.h"
 #include "thread_list.h"
 
+#include <fstream>
+
 namespace art {
 namespace jit {
 

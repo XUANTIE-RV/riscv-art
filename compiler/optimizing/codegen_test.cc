@@ -42,6 +42,9 @@ namespace art {
 static ::std::vector<CodegenTargetConfig> GetTargetConfigs() {
   ::std::vector<CodegenTargetConfig> v;
   ::std::vector<CodegenTargetConfig> test_config_candidates = {
+#ifdef ART_ENABLE_CODEGEN_riscv64
+    CodegenTargetConfig(InstructionSet::kRiscv64, create_codegen_riscv64),
+#endif
 #ifdef ART_ENABLE_CODEGEN_arm
     // TODO: Should't this be `kThumb2` instead of `kArm` here?
     CodegenTargetConfig(InstructionSet::kArm, create_codegen_arm_vixl32),

@@ -313,7 +313,8 @@ static JniCompiledMethod ArtJniCompileMethodInternal(const CompilerOptions& comp
   // Note that we always have outgoing param space available for at least two params.
   if (kUseReadBarrier && is_static && !is_critical_native) {
     const bool kReadBarrierFastPath =
-        (instruction_set != InstructionSet::kMips) && (instruction_set != InstructionSet::kMips64);
+        (instruction_set != InstructionSet::kMips) && (instruction_set != InstructionSet::kMips64)
+        && (instruction_set != InstructionSet::kRiscv64);
     std::unique_ptr<JNIMacroLabel> skip_cold_path_label;
     if (kReadBarrierFastPath) {
       skip_cold_path_label = __ CreateLabel();

@@ -144,6 +144,17 @@ class AssemblerTest : public testing::Test {
         fmt);
   }
 
+  std::string Repeatrrr(void (Ass::*f)(Reg, Reg, Reg), const std::string& fmt) {
+    return RepeatTemplatedRegisters<Reg, Reg, Reg>(f,
+        GetRegisters(),
+        GetRegisters(),
+        GetRegisters(),
+        &AssemblerTest::GetRegName<RegisterView::kUseSecondaryName>,
+        &AssemblerTest::GetRegName<RegisterView::kUseSecondaryName>,
+        &AssemblerTest::GetRegName<RegisterView::kUseSecondaryName>,
+        fmt);
+  }
+
   std::string Repeatrb(void (Ass::*f)(Reg, Reg), const std::string& fmt) {
     return RepeatTemplatedRegisters<Reg, Reg>(f,
         GetRegisters(),
@@ -355,7 +366,8 @@ class AssemblerTest : public testing::Test {
                                              const std::vector<RegType*> registers,
                                              std::string (AssemblerTest::*GetName)(const RegType&),
                                              const std::string& fmt,
-                                             int bias) {
+                                             int bias = 0,
+                                             int multiplier = 1) {
     std::string str;
     std::vector<int64_t> imms = CreateImmediateValuesBits(abs(imm_bits), (imm_bits > 0));
 
@@ -363,7 +375,7 @@ class AssemblerTest : public testing::Test {
       for (int64_t imm : imms) {
         ImmType new_imm = CreateImmediate(imm);
         if (f != nullptr) {
-          (assembler_.get()->*f)(*reg, new_imm + bias);
+          (assembler_.get()->*f)(*reg, new_imm * multiplier + bias);
         }
         std::string base = fmt;
 
@@ -376,7 +388,7 @@ class AssemblerTest : public testing::Test {
         size_t imm_index = base.find(IMM_TOKEN);
         if (imm_index != std::string::npos) {
           std::ostringstream sreg;
-          sreg << imm + bias;
+          sreg << imm * multiplier + bias;
           std::string imm_string = sreg.str();
           base.replace(imm_index, ConstexprStrLen(IMM_TOKEN), imm_string);
         }
@@ -408,6 +420,23 @@ class AssemblerTest : public testing::Test {
   }
 
   template <typename ImmType>
+  std::string RepeatrrIb(void (Ass::*f)(Reg, Reg, ImmType),
+                         int imm_bits,
+                         const std::string& fmt,
+                         int bias = 0,
+                         int multiplier = 1) {
+    return RepeatTemplatedRegistersImmBits<Reg, Reg, ImmType>(f,
+        imm_bits,
+        GetRegisters(),
+        GetRegisters(),
+        &AssemblerTest::GetRegName<RegisterView::kUseSecondaryName>,
+        &AssemblerTest::GetRegName<RegisterView::kUseSecondaryName>,
+        fmt,
+        bias,
+        multiplier);
+  }
+
+  template <typename ImmType>
   std::string RepeatRRRIb(void (Ass::*f)(Reg, Reg, Reg, ImmType),
                           int imm_bits,
                           const std::string& fmt,
@@ -435,6 +464,17 @@ class AssemblerTest : public testing::Test {
   }
 
   template <typename ImmType>
+  std::string RepeatrIb(void (Ass::*f)(Reg, ImmType), int imm_bits, std::string fmt, int bias = 0, int multiplier = 1) {
+    return RepeatTemplatedRegisterImmBits<Reg, ImmType>(f,
+        imm_bits,
+        GetRegisters(),
+        &AssemblerTest::GetRegName<RegisterView::kUseSecondaryName>,
+        fmt,
+        bias,
+        multiplier);
+  }
+
+  template <typename ImmType>
   std::string RepeatFRIb(void (Ass::*f)(FPReg, Reg, ImmType),
                          int imm_bits,
                          const std::string& fmt,
@@ -445,6 +485,21 @@ class AssemblerTest : public testing::Test {
         GetRegisters(),
         &AssemblerTest::GetFPRegName,
         &AssemblerTest::GetRegName<RegisterView::kUsePrimaryName>,
+        fmt,
+        bias);
+  }
+
+  template <typename ImmType>
+  std::string RepeatFrIb(void (Ass::*f)(FPReg, Reg, ImmType),
+                         int imm_bits,
+                         const std::string& fmt,
+                         int bias = 0) {
+    return RepeatTemplatedRegistersImmBits<FPReg, Reg, ImmType>(f,
+        imm_bits,
+        GetFPRegisters(),
+        GetRegisters(),
+        &AssemblerTest::GetFPRegName,
+        &AssemblerTest::GetRegName<RegisterView::kUseSecondaryName>,
         fmt,
         bias);
   }
@@ -463,6 +518,19 @@ class AssemblerTest : public testing::Test {
                                                          GetFPRegisters(),
                                                          GetFPRegisters(),
                                                          GetFPRegisters(),
+                                                         &AssemblerTest::GetFPRegName,
+                                                         &AssemblerTest::GetFPRegName,
+                                                         &AssemblerTest::GetFPRegName,
+                                                         fmt);
+  }
+
+  std::string RepeatFFF(void (Ass::*f)(FPReg, FPReg, FPReg, FPReg), const std::string& fmt) {
+    return RepeatTemplatedRegisters<FPReg, FPReg, FPReg, FPReg>(f,
+                                                         GetFPRegisters(),
+                                                         GetFPRegisters(),
+                                                         GetFPRegisters(),
+                                                         GetFPRegisters(),
+                                                         &AssemblerTest::GetFPRegName,
                                                          &AssemblerTest::GetFPRegName,
                                                          &AssemblerTest::GetFPRegName,
                                                          &AssemblerTest::GetFPRegName,
@@ -551,6 +619,17 @@ class AssemblerTest : public testing::Test {
         GetRegisters(),
         GetFPRegisters(),
         &AssemblerTest::GetRegName<RegisterView::kUseSecondaryName>,
+        &AssemblerTest::GetFPRegName,
+        fmt);
+  }
+
+  std::string RepeatrFF(void (Ass::*f)(Reg, FPReg, FPReg), const std::string& fmt) {
+    return RepeatTemplatedRegisters<Reg, FPReg, FPReg>(f,
+        GetRegisters(),
+        GetFPRegisters(),
+        GetFPRegisters(),
+        &AssemblerTest::GetRegName<RegisterView::kUseSecondaryName>,
+        &AssemblerTest::GetFPRegName,
         &AssemblerTest::GetFPRegName,
         fmt);
   }
@@ -1435,6 +1514,64 @@ class AssemblerTest : public testing::Test {
     return str;
   }
 
+  template <typename Reg1, typename Reg2, typename Reg3, typename Reg4>
+  std::string RepeatTemplatedRegisters(void (Ass::*f)(Reg1, Reg2, Reg3, Reg4),
+                                       const std::vector<Reg1*> reg1_registers,
+                                       const std::vector<Reg2*> reg2_registers,
+                                       const std::vector<Reg3*> reg3_registers,
+                                       const std::vector<Reg4*> reg4_registers,
+                                       std::string (AssemblerTest::*GetName1)(const Reg1&),
+                                       std::string (AssemblerTest::*GetName2)(const Reg2&),
+                                       std::string (AssemblerTest::*GetName3)(const Reg3&),
+                                       std::string (AssemblerTest::*GetName4)(const Reg4&),
+                                       const std::string& fmt) {
+    std::string str;
+    for (auto reg1 : reg1_registers) {
+      for (auto reg2 : reg2_registers) {
+        for (auto reg3 : reg3_registers) {
+          for (auto reg4 : reg4_registers) {
+            if (f != nullptr) {
+              (assembler_.get()->*f)(*reg1, *reg2, *reg3, *reg4);
+            }
+            std::string base = fmt;
+
+            std::string reg1_string = (this->*GetName1)(*reg1);
+            size_t reg1_index;
+            while ((reg1_index = base.find(REG1_TOKEN)) != std::string::npos) {
+              base.replace(reg1_index, ConstexprStrLen(REG1_TOKEN), reg1_string);
+            }
+
+            std::string reg2_string = (this->*GetName2)(*reg2);
+            size_t reg2_index;
+            while ((reg2_index = base.find(REG2_TOKEN)) != std::string::npos) {
+              base.replace(reg2_index, ConstexprStrLen(REG2_TOKEN), reg2_string);
+            }
+
+            std::string reg3_string = (this->*GetName3)(*reg3);
+            size_t reg3_index;
+            while ((reg3_index = base.find(REG3_TOKEN)) != std::string::npos) {
+              base.replace(reg3_index, ConstexprStrLen(REG3_TOKEN), reg3_string);
+            }
+
+            std::string reg4_string = (this->*GetName4)(*reg4);
+            size_t reg4_index;
+            while ((reg4_index = base.find(REG4_TOKEN)) != std::string::npos) {
+              base.replace(reg4_index, ConstexprStrLen(REG4_TOKEN), reg4_string);
+            }
+
+            if (str.size() > 0) {
+              str += "\n";
+            }
+            str += base;
+          }
+        }
+      }
+    }
+    // Add a newline at the end.
+    str += "\n";
+    return str;
+  }
+
   template <typename Reg1, typename Reg2>
   std::string RepeatTemplatedRegistersImm(void (Ass::*f)(Reg1, Reg2, const Imm&),
                                           const std::vector<Reg1*> reg1_registers,
@@ -1545,6 +1682,7 @@ class AssemblerTest : public testing::Test {
   static constexpr const char* REG1_TOKEN = "{reg1}";
   static constexpr const char* REG2_TOKEN = "{reg2}";
   static constexpr const char* REG3_TOKEN = "{reg3}";
+  static constexpr const char* REG4_TOKEN = "{reg4}";
   static constexpr const char* IMM_TOKEN = "{imm}";
 
  private:

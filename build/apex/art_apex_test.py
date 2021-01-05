@@ -26,7 +26,6 @@ import zipfile
 
 logging.basicConfig(format='%(message)s')
 
-
 class FSObject:
   def __init__(self, name, is_dir, is_exec, is_symlink):
     self.name = name
@@ -477,7 +476,8 @@ class ReleaseTargetChecker:
     self._checker.check_native_library('libexpat')
     self._checker.check_native_library('libicui18n')
     self._checker.check_native_library('libicuuc')
-    self._checker.check_native_library('libpac')
+    # FIXME: T-HEAD, disable for riscv64, enable in the future.
+    # self._checker.check_native_library('libpac')
     self._checker.check_native_library('libz')
 
     # TODO(b/124293228): Cuttlefish puts ARM libs in a lib/arm subdirectory.

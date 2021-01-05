@@ -160,6 +160,31 @@ static void WriteCIE(InstructionSet isa, /*inout*/ std::vector<uint8_t>* buffer)
       WriteCIE(is64bit, return_reg, opcodes, buffer);
       return;
     }
+    case InstructionSet::kRiscv64: {
+      // FIXME: T-HEAD, Need to double check.
+      dwarf::DebugFrameOpCodeWriter<> opcodes;
+      opcodes.DefCFA(Reg::Riscv64Core(2), 0);  // R2(SP).
+      // core registers.
+      for (int reg = 5; reg < 32; reg++) {
+        if (((reg > 9) && (reg < 18)) || reg == 30 || reg == 31) {  // A*, T5/T6 reserved.
+          opcodes.Undefined(Reg::Riscv64Core(reg));
+        } else {
+          opcodes.SameValue(Reg::Riscv64Core(reg));
+        }
+      }
+      // fp registers.
+      for (int reg = 0; reg < 32; reg++) {
+        if (((reg >= 0) && (reg <= 7)) || ((reg >= 10) && (reg <= 17)) || \
+            ((reg >= 28) && (reg <= 31))) {
+          opcodes.Undefined(Reg::Riscv64Fp(reg));
+        } else {
+          opcodes.SameValue(Reg::Riscv64Fp(reg));
+        }
+      }
+      auto return_reg = Reg::Riscv64Core(1);  // R1(RA).
+      WriteCIE(is64bit, return_reg, opcodes, buffer);
+      return;
+    }
     case InstructionSet::kNone:
       break;
   }

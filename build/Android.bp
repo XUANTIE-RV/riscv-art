@@ -115,7 +115,7 @@ art_global_defaults {
 
                 // To use oprofile_android --callgraph, uncomment this and recompile with
                 //    mmma -j art
-                // "-fno-omit-frame-pointer",
+                "-fno-omit-frame-pointer",
                 // "-marm",
                 // "-mapcs",
             ],
@@ -165,6 +165,9 @@ art_global_defaults {
         },
         mips64: {
             cflags: ["-DART_ENABLE_CODEGEN_mips64"],
+        },
+        riscv64: {
+            cflags: ["-DART_ENABLE_CODEGEN_riscv64"],
         },
         x86: {
             cflags: ["-DART_ENABLE_CODEGEN_x86"],
